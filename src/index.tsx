@@ -4,6 +4,11 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+import { OrdinalLock } from './contracts/ordinalLock';
+import artifact from '../artifacts/ordinalLock.json';
+
+OrdinalLock.loadArtifact(artifact);
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
