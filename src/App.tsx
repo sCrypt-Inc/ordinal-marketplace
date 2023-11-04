@@ -13,7 +13,6 @@ const App: React.FC = () => {
 
   const [isConnected, setIsConnected] = useState(false)
 
-  const [connectedPayAddress, setConnectedPayAddress] = useState(undefined)
   const [connectedOrdiAddress, setConnectedOrdiAddress] = useState(undefined)
 
   const [walletItems, setWalletItems] = useState([])
@@ -25,21 +24,10 @@ const App: React.FC = () => {
     loadMarketItems()
   }, []);
 
-  useEffect(() => {
-    loadWalletItems()
-  }, [connectedOrdiAddress])
-
   async function loadWalletItems() {
     const signer = signerRef.current as PandaSigner;
 
     if (signer) {
-      // TODO: Make work with this function:
-      //const ordinals = await signer.getOrdinals()
-      //setCollections(ordinals)
-
-      //const url = `https://v3.ordinals.gorillapool.io/api/txos/address/${connectedOrdiAddress.toString()}/unspent?bsv20=false`
-      //const url = `https://testnet.ordinals.gorillapool.io/api/txos/address/${connectedOrdiAddress.toString()}/unspent?bsv20=false`
-      //fetch(url).then(r => r.json()).then(r => r.filter(e => e.origin.data.insc.file.type !== 'application/bsv-20')).then(r => setWalletItems(r))
       try {
         const connectedOrdiAddressStr = connectedOrdiAddress.toString();
         const url = `https://testnet.ordinals.gorillapool.io/api/txos/address/${connectedOrdiAddressStr}/unspent?bsv20=false`;
@@ -66,13 +54,13 @@ const App: React.FC = () => {
   }
 
   function storeMarketItem(ordLockTx: bsv.Transaction, price: number, seller: string, item: any) {
-    // TODO: Simplify
     let marketItems: any = localStorage.getItem('marketItems')
     if (!marketItems) {
       marketItems = {}
     } else {
       marketItems = JSON.parse(marketItems)
     }
+
     marketItems[item.origin.outpoint] = {
       txId: ordLockTx.id,
       vout: 0,
@@ -97,21 +85,6 @@ const App: React.FC = () => {
 
     localStorage.setItem('marketItems', JSON.stringify(marketItems));
     setMarketItems(marketItems)
-  }
-
-  async function connect() {
-    const provider = new OrdiProvider(bsv.Networks.testnet);
-    const signer = new PandaSigner(provider);
-
-    signerRef.current = signer;
-    const { isAuthenticated, error } = await signer.requestAuth()
-    if (!isAuthenticated) {
-      throw new Error(`Unauthenticated: ${error}`)
-    }
-
-    setConnectedPayAddress(await signer.getDefaultAddress())
-    setConnectedOrdiAddress(await signer.getOrdAddress())
-    setIsConnected(true)
   }
 
   const handleList = async (idx: number, priceSats: number) => {
@@ -147,11 +120,10 @@ const App: React.FC = () => {
     console.log("Transferred NFT: ", transferTx.id);
 
     // Store reference in local storage.
-    storeMarketItem(transferTx, Number(ordLock.amount), seller, item)
+    storeMarketItem(transferTx, priceSats, seller, item)
   };
 
   const handleBuy = async (marketItem: any) => {
-    
     const signer = signerRef.current as PandaSigner;
     await signer.connect()
 
@@ -160,7 +132,6 @@ const App: React.FC = () => {
 
     await instance.connect(signer)
 
-    const sellerPublicKey = instance.seller
     const buyerPublicKey = await signer.getOrdPubKey()
     
     const receiverAddr = Addr(buyerPublicKey.toAddress().toByteString())
@@ -176,8 +147,6 @@ const App: React.FC = () => {
   }
 
   const handleCancel = async (marketItem: any) => {
-    // TODO: Change to fetch by outpoint and dont event store txid and stuff?
-
     const signer = signerRef.current as PandaSigner;
     await signer.connect()
 
@@ -202,7 +171,18 @@ const App: React.FC = () => {
   }
 
   const handleConnect = async () => {
-    await connect()
+    const provider = new OrdiProvider(bsv.Networks.testnet);
+    const signer = new PandaSigner(provider);
+
+    signerRef.current = signer;
+    const { isAuthenticated, error } = await signer.requestAuth()
+    if (!isAuthenticated) {
+      throw new Error(`Unauthenticated: ${error}`)
+    }
+
+    setConnectedOrdiAddress(await signer.getOrdAddress())
+    setIsConnected(true)
+    loadWalletItems()
   };
 
   const handleTabChange = (e, tabIndex) => {
@@ -227,7 +207,6 @@ const App: React.FC = () => {
           {activeTab === 0 && (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
               {walletItems.map((item, idx) => {
-                console.log(item)
                 return <ItemViewWallet key={idx} item={item} idx={idx} onList={handleList} />
               })}
             </Box>

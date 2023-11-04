@@ -5,11 +5,11 @@ interface ItemProps {
   marketItem: any
   idx: number
   isMyListing: boolean
-  onBuy: (idx: number) => void;
-  onCancel: (idx: number) => void;
+  onBuy: (marketItem: any) => void;
+  onCancel: (marketItem: any) => void;
 }
 
-const ItemViewWallet: React.FC<ItemProps> = ({ marketItem, idx, isMyListing, onBuy, onCancel }) => {
+const ItemViewMarket: React.FC<ItemProps> = ({ marketItem, idx, isMyListing, onBuy, onCancel }) => {
   const [textData, setTextData] = useState<string | null>(null);
 
   useEffect(() => {
@@ -45,9 +45,15 @@ const ItemViewWallet: React.FC<ItemProps> = ({ marketItem, idx, isMyListing, onB
             {textData || 'Loading text...'}
           </Typography>
         )}
-        <Typography variant="body2" color="text.secondary">
-          #{marketItem.item.origin.num}
-        </Typography>
+        {marketItem.origin.num ? (
+          <Typography variant="body2" color="text.secondary">
+            #{marketItem.origin.num}
+          </Typography>
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            Pending...
+          </Typography>
+        )}
         <Typography variant="body2" color="text.secondary">
           <b>Price:</b> {marketItem.price / (10**8)} BSV
         </Typography>
@@ -61,4 +67,4 @@ const ItemViewWallet: React.FC<ItemProps> = ({ marketItem, idx, isMyListing, onB
   );
 };
 
-export default ItemViewWallet;
+export default ItemViewMarket;
