@@ -4,10 +4,17 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-import { OrdinalLock } from './contracts/ordinalLock';
-import artifact from '../artifacts/ordinalLock.json';
+import { OrdinalMarket } from './contracts/ordinalsMarket';
+import artifact from '../artifacts/ordinalsMarket.json';
+import { Scrypt, bsv } from 'scrypt-ts';
 
-OrdinalLock.loadArtifact(artifact);
+OrdinalMarket.loadArtifact(artifact);
+
+Scrypt.init({
+  // https://docs.scrypt.io/advanced/how-to-integrate-scrypt-service#get-your-api-key
+  apiKey: process.env.REACT_APP_API_KEY || '',
+  network: bsv.Networks.testnet
+})
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
