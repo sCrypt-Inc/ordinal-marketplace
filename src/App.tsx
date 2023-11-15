@@ -103,8 +103,6 @@ const App: React.FC = () => {
 
   const handleList = async (idx: number, priceSats: number) => {
     const signer = signerRef.current as PandaSigner;
-    //const provider = new ScryptProvider();
-    //const signer = new SensiletSigner(provider);
 
     const { isAuthenticated, error } = await signer.requestAuth();
     if (!isAuthenticated) {
@@ -168,6 +166,7 @@ const App: React.FC = () => {
       )
       .then((result) => {
         console.log(`Add item call tx: ${result.tx.id}`);
+        fetchContract()
       })
       .catch((e) => {
         console.error("Add item call error: ", e);
@@ -200,6 +199,7 @@ const App: React.FC = () => {
       )
       .then((result) => {
         console.log(`Buy request call tx: ${result.tx.id}`);
+        fetchContract()
       })
       .catch((e) => {
         console.error("Buy request call error: ", e);
@@ -344,6 +344,7 @@ const App: React.FC = () => {
       } as MethodCallOptions<OrdinalMarket>
     ).then((result) => {
       console.log(`Buy confirm call tx: ${result.tx.id}`);
+      fetchContract()
     }).catch((e) => {
       console.error("Buy confirm call error: ", e);
     });
@@ -422,6 +423,7 @@ const App: React.FC = () => {
       )
       .then((result) => {
         console.log(`Buy request call tx: ${result.tx.id}`);
+        fetchContract()
       })
       .catch((e) => {
         console.error("Buy request call error: ", e);
@@ -461,6 +463,7 @@ const App: React.FC = () => {
       )
       .then((result) => {
         console.log(`Cancel listing call tx: ${result.tx.id}`);
+        fetchContract()
       })
       .catch((e) => {
         console.error("Cancel listing call error: ", e);
@@ -469,7 +472,6 @@ const App: React.FC = () => {
 
 
   const handleConnect = async () => {
-    //const provider = new OrdiProvider(bsv.Networks.testnet);
     const provider = new ScryptProvider();
     const signer = new PandaSigner(provider);
 
